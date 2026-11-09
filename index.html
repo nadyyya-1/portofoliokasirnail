@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nail Art Beauty - POS & Kasir System</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts (Poppins) -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pinksoft: {
+                            50: '#fff0f3',
+                            100: '#ffe6ea',
+                            200: '#fccbde',
+                            300: '#f8a5c2',
+                            400: '#f78fb3',
+                            500: '#e84393',
+                            600: '#d81b60',
+                            700: '#b80e4b',
+                            800: '#880e4f',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #fff0f3;
+            font-family: 'Poppins', sans-serif;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #ffe6ea;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #f8a5c2;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #d81b60;
+        }
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printReceiptModal, #printReceiptModal * {
+                visibility: visible;
+            }
+            #printReceiptModal {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: white;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="text-slate-700 min-h-screen flex flex-col justify-between">
+
+    <!-- TOP HEADER / NAVBAR -->
+    <header class="bg-white/80 backdrop-blur-md border-b border-pinksoft-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-pinksoft-500 to-pinksoft-300 flex items-center justify-center text-white shadow-md shadow-pinksoft-200">
+                    <i data-lucide="sparkles" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight text-pinksoft-800">Nail Art Beauty</h1>
+                    <p class="text-xs text-pinksoft-500 font-medium">Point of Sale & Booking System</p>
+                </div>
+            </div>
+
+            <!-- TAB NAVIGATIONS -->
+            <nav class="flex gap-2 bg-pinksoft-100 p-1.5 rounded-2xl">
+                <button onclick="switchTab('pos')" id="nav-pos" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 bg-white text-pinksoft-700 shadow-sm">
+                    <i data-lucide="shopping-bag" class="w-4 h-4"></i> Kasir & Order
+                </button>
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 text-pinksoft-600 hover:text-pinksoft-800">
+                    <i data-lucide="bar-chart-3" class="w-4 h-4"></i> Dashboard
+                </button>
+                <button onclick="switchTab('history')" id="nav-history" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 text-pinksoft-600 hover:text-pinksoft-800">
+                    <i data-lucide="clock" class="w-4 h-4"></i> Riwayat
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
+
+        <!-- ================= TAB 1: KASIR & ORDER ================= -->
+        <div id="tab-pos" class="tab-content grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- LEFT COLUMN: KATALOG LAYANAN & CUSTOMER INFO -->
+            <div class="lg:col-span-7 flex flex-col gap-6">
+
+                <!-- INFORMASI PELANGGAN & BOOKING -->
+                <div class="bg-white rounded-3xl p-5 border border-pinksoft-200 shadow-sm">
+                    <h2 class="text-base font-bold text-pinksoft-800 mb-4 flex items-center gap-2">
+                        <i data-lucide="user-check" class="w-5 h-5 text-pinksoft-500"></i> Informaasi Pelanggan & Jadwal
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">Nama Pelanggan</label>
+                            <input type="text" id="custName" placeholder="Contoh: Amanda R." class="w-full px-3.5 py-2.5 rounded-xl border border-pinksoft-200 focus:outline-none focus:ring-2 focus:ring-pinksoft-400 text-sm bg-pinksoft-50/30">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">No. WhatsApp / HP</label>
+                            <input type="tel" id="custPhone" placeholder="0812xxxxxxx" class="w-full px-3.5 py-2.5 rounded-xl border border-pinksoft-200 focus:outline-none focus:ring-2 focus:ring-pinksoft-400 text-sm bg-pinksoft-50/30">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">Waktu Booking / Pengerjaan</label>
+                            <input type="datetime-local" id="bookingTime" class="w-full px-3.5 py-2.5 rounded-xl border border-pinksoft-200 focus:outline-none focus:ring-2 focus:ring-pinksoft-400 text-sm bg-pinksoft-50/30">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DAFTAR KATALOG LAYANAN -->
+                <div class="bg-white rounded-3xl p-5 border border-pinksoft-200 shadow-sm flex-1">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-base font-bold text-pinksoft-800 flex items-center gap-2">
+                            <i data-lucide="heart" class="w-5 h-5 text-pinksoft-500"></i> Pilih Layanan Nail Art
+                        </h2>
+                        <div class="relative w-48">
+                            <input type="text" id="searchService" oninput="filterServices()" placeholder="Cari layanan..." class="w-full pl-8 pr-3 py-1.5 rounded-xl border border-pinksoft-200 focus:outline-none focus:ring-2 focus:ring-pinksoft-400 text-xs bg-pinksoft-50/50">
+                            <i data-lucide="search" class="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-pinksoft-400"></i>
+                        </div>
+                    </div>
+
+                    <!-- GRID MENU LAYANAN -->
+                    <div id="serviceGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[420px] overflow-y-auto pr-1">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: KERANJANG & CHECKOUT -->
+            <div class="lg:col-span-5 flex flex-col gap-6">
+                
+                <div class="bg-white rounded-3xl p-5 border border-pinksoft-200 shadow-sm flex flex-col justify-between h-full">
+                    <div>
+                        <!-- KERANJANG HEADER -->
+                        <div class="flex items-center justify-between pb-3 border-b border-pinksoft-100 mb-4">
+                            <h2 class="text-base font-bold text-pinksoft-800 flex items-center gap-2">
+                                <i data-lucide="shopping-cart" class="w-5 h-5 text-pinksoft-500"></i> Pesanan Aktif
+                            </h2>
+                            <button onclick="clearCart()" class="text-xs text-rose-500 font-semibold hover:underline flex items-center gap-1">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Reset
+                            </button>
+                        </div>
+
+                        <!-- ITEM LIST KERANJANG -->
+                        <div id="cartList" class="space-y-3 max-h-[300px] overflow-y-auto pr-1 mb-4">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- PEMBAYARAN & TOTAL -->
+                    <div class="border-t border-pinksoft-200 pt-4 bg-pinksoft-50/50 -mx-5 -mb-5 p-5 rounded-b-3xl space-y-3">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-500 font-medium">Subtotal</span>
+                            <span id="subtotalTxt" class="font-bold text-slate-700">Rp0</span>
+                        </div>
+                        <div class="flex justify-between items-center text-lg font-bold">
+                            <span class="text-pinksoft-800">Total Tagihan</span>
+                            <span id="totalTxt" class="text-pinksoft-600">Rp0</span>
+                        </div>
+
+                        <div class="pt-2 space-y-2">
+                            <label class="block text-xs font-semibold text-slate-600">Jumlah Uang Pembayaran (Tunai)</label>
+                            <div class="relative">
+                                <span class="absolute left-3.5 top-2.5 text-sm font-semibold text-pinksoft-500">Rp</span>
+                                <input type="number" id="cashAmount" oninput="calculateChange()" placeholder="0" class="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-pinksoft-200 focus:outline-none focus:ring-2 focus:ring-pinksoft-400 font-bold text-slate-800 text-base bg-white">
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center text-sm py-1">
+                            <span class="text-slate-500 font-medium">Kembalian</span>
+                            <span id="changeTxt" class="font-bold text-emerald-600 text-base">Rp0</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 pt-2">
+                            <button onclick="saveBookingOnly()" class="w-full py-3 bg-pinksoft-100 hover:bg-pinksoft-200 text-pinksoft-700 rounded-2xl font-bold text-sm transition-all duration-200 flex items-center justify-center gap-1.5">
+                                <i data-lucide="bookmark" class="w-4 h-4"></i> Simpan Booking
+                            </button>
+                            <button onclick="processPayment()" class="w-full py-3 bg-gradient-to-r from-pinksoft-500 to-pinksoft-600 hover:from-pinksoft-600 hover:to-pinksoft-700 text-white rounded-2xl font-bold text-sm shadow-md shadow-pinksoft-200 transition-all duration-200 flex items-center justify-center gap-1.5">
+                                <i data-lucide="check-circle" class="w-4 h-4"></i> Bayar Lunas
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ================= TAB 2: DASHBOARD STATISTIK ================= -->
+        <div id="tab-dashboard" class="tab-content hidden space-y-6">
+            
+            <!-- STATS CARDS -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white p-5 rounded-3xl border border-pinksoft-200 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Pendapatan</p>
+                        <h3 id="statRevenue" class="text-xl font-extrabold text-pinksoft-700 mt-1">Rp0</h3>
+                    </div>
+                    <div class="w-12 h-12 rounded-2xl bg-pinksoft-100 flex items-center justify-center text-pinksoft-600">
+                        <i data-lucide="wallet" class="w-6 h-6"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-3xl border border-pinksoft-200 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Transaksi</p>
+                        <h3 id="statCount" class="text-xl font-extrabold text-slate-800 mt-1">0 Transaksi</h3>
+                    </div>
+                    <div class="w-12 h-12 rounded-2xl bg-pinksoft-100 flex items-center justify-center text-pinksoft-600">
+                        <i data-lucide="receipt" class="w-6 h-6"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-3xl border border-pinksoft-200 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Layanan Terlaris</p>
+                        <h3 id="statTopService" class="text-sm font-bold text-slate-800 mt-1 truncate max-w-[130px]">-</h3>
+                    </div>
+                    <div class="w-12 h-12 rounded-2xl bg-pinksoft-100 flex items-center justify-center text-pinksoft-600">
+                        <i data-lucide="crown" class="w-6 h-6"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-3xl border border-pinksoft-200 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Booking Aktif</p>
+                        <h3 id="statActiveBooking" class="text-xl font-extrabold text-slate-800 mt-1">0 Order</h3>
+                    </div>
+                    <div class="w-12 h-12 rounded-2xl bg-pinksoft-100 flex items-center justify-center text-pinksoft-600">
+                        <i data-lucide="calendar" class="w-6 h-6"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DETAIL LAYANAN POPULER & QUICK RESET -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- RANKING LAYANAN -->
+                <div class="lg:col-span-2 bg-white rounded-3xl p-5 border border-pinksoft-200 shadow-sm">
+                    <h3 class="text-base font-bold text-pinksoft-800 mb-4 flex items-center gap-2">
+                        <i data-lucide="bar-chart-2" class="w-5 h-5 text-pinksoft-500"></i> Layanan Paling Sering Dipesan
+                    </h3>
+                    <div id="topServicesList" class="space-y-3">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- CONTROLS & RESET SYSTEM -->
+                <div class="bg-white rounded-3xl p-5 border border-pinksoft-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-base font-bold text-pinksoft-800 mb-3 flex items-center gap-2">
+                            <i data-lucide="settings" class="w-5 h-5 text-pinksoft-500"></i> Pengaturan Data
+                        </h3>
+                        <p class="text-xs text-slate-500 leading-relaxed mb-4">
+                            Seluruh data transaksi, daftar pesanan, dan booking tersimpan secara permanen di browser ini (`localStorage`).
+                        </p>
+                    </div>
+                    <div class="space-y-2">
+                        <button onclick="exportDataJSON()" class="w-full py-2.5 bg-pinksoft-50 hover:bg-pinksoft-100 text-pinksoft-700 rounded-xl font-semibold text-xs transition border border-pinksoft-200 flex items-center justify-center gap-2">
+                            <i data-lucide="download" class="w-4 h-4"></i> Backup Data (JSON)
+                        </button>
+                        <button onclick="resetAllSystemData()" class="w-full py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl font-semibold text-xs transition border border-rose-200 flex items-center justify-center gap-2">
+                            <i data-lucide="refresh-cw" class="w-4 h-4"></i> Reset Seluruh Data System
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ================= TAB 3: RIWAYAT & DAFTAR BOOKING ================= -->
+        <div id="tab-history" class="tab-content hidden space-y-6">
+            
+            <div class="bg-white rounded-3xl p-5 border border-pinksoft-200 shadow-sm">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                    <h2 class="text-base font-bold text-pinksoft-800 flex items-center gap-2">
+                        <i data-lucide="list" class="w-5 h-5 text-pinksoft-500"></i> Daftar Transaksi & Booking Saved
+                    </h2>
+                    <div class="flex items-center gap-2">
+                        <select id="filterStatus" onchange="renderHistoryTable()" class="px-3 py-1.5 rounded-xl border border-pinksoft-200 focus:outline-none text-xs bg-pinksoft-50/50">
+                            <option value="ALL">Semua Status</option>
+                            <option value="LUNAS">Status: LUNAS</option>
+                            <option value="BOOKED">Status: BOOKED</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- TABLE RIWAYAT -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-pinksoft-100/60 text-pinksoft-800 font-semibold text-xs">
+                            <tr>
+                                <th class="p-3 rounded-l-xl">ID / Waktu</th>
+                                <th class="p-3">Pelanggan</th>
+                                <th class="p-3">Item Layanan</th>
+                                <th class="p-3">Total Tagihan</th>
+                                <th class="p-3">Status</th>
+                                <th class="p-3 text-right rounded-r-xl">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody" class="divide-y divide-pinksoft-100 text-xs">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- MODAL EDIT ITEM / EDIT BOOKING -->
+    <div id="editModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-xl border border-pinksoft-200 space-y-4">
+            <div class="flex justify-between items-center border-b border-pinksoft-100 pb-3">
+                <h3 class="font-bold text-pinksoft-800 text-base flex items-center gap-2">
+                    <i data-lucide="edit-3" class="w-4 h-4 text-pinksoft-500"></i> Edit Pesanan / Booking
+                </h3>
+                <button onclick="closeEditModal()" class="text-slate-400 hover:text-slate-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Nama Pelanggan</label>
+                    <input type="text" id="editCustName" class="w-full px-3 py-2 rounded-xl border border-pinksoft-200 text-sm focus:outline-none focus:ring-2 focus:ring-pinksoft-400">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Status Transaksi</label>
+                    <select id="editStatus" class="w-full px-3 py-2 rounded-xl border border-pinksoft-200 text-sm focus:outline-none focus:ring-2 focus:ring-pinksoft-400">
+                        <option value="BOOKED">BOOKED (Belum Bayar)</option>
+                        <option value="LUNAS">LUNAS (Sudah Bayar)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Catatan Tambahan</label>
+                    <textarea id="editNotes" rows="2" class="w-full px-3 py-2 rounded-xl border border-pinksoft-200 text-sm focus:outline-none focus:ring-2 focus:ring-pinksoft-400" placeholder="Contoh: Warna pink glitter"></textarea>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeEditModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-500 hover:bg-slate-100">Batal</button>
+                <button onclick="saveEditOrder()" class="px-4 py-2 bg-pinksoft-600 hover:bg-pinksoft-700 text-white rounded-xl text-xs font-semibold shadow-sm">Simpan Perubahan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CETAK STRUK PEMBAYARAN -->
+    <div id="printReceiptModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-xs w-full p-6 shadow-2xl border border-pinksoft-200 space-y-4">
+            <div class="text-center space-y-1">
+                <h3 class="font-bold text-lg text-pinksoft-800">💅 Nail Art Beauty</h3>
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest">Struk Pembayaran Kasir</p>
+                <p class="text-xs text-slate-500" id="receiptDate">-</p>
+            </div>
+            
+            <div class="border-t border-b border-dashed border-pinksoft-200 py-3 text-xs space-y-2">
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Pelanggan:</span>
+                    <span id="receiptCust" class="font-semibold text-slate-700">-</span>
+                </div>
+                <div class="space-y-1 pt-1" id="receiptItems">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <div class="text-xs space-y-1.5">
+                <div class="flex justify-between font-bold text-sm text-pinksoft-800">
+                    <span>Total Tagihan</span>
+                    <span id="receiptTotal">Rp0</span>
+                </div>
+                <div class="flex justify-between text-slate-600">
+                    <span>Tunai</span>
+                    <span id="receiptCash">Rp0</span>
+                </div>
+                <div class="flex justify-between text-emerald-600 font-semibold">
+                    <span>Kembalian</span>
+                    <span id="receiptChange">Rp0</span>
+                </div>
+            </div>
+
+            <div class="text-center pt-2 space-y-2 no-print">
+                <button onclick="window.print()" class="w-full py-2.5 bg-pinksoft-600 hover:bg-pinksoft-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md">
+                    <i data-lucide="printer" class="w-4 h-4"></i> Cetak Struk
+                </button>
+                <button onclick="closeReceiptModal()" class="w-full py-2 bg-pinksoft-100 hover:bg-pinksoft-200 text-pinksoft-700 font-semibold rounded-xl text-xs">
+                    Selesai & Transaksi Baru
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-pinksoft-200 py-3 text-center text-xs text-pinksoft-400 font-medium no-print">
+        Nail Art Beauty POS &copy; 2026 - Soft Pink Aesthetic System
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- 1. DATA KATALOG LAYANAN NAIL ART ---
+        const SERVICES_CATALOG = [
+            { id: 's1', name: 'Manicure Express', price: 50000, desc: 'Pembersihan kuku standar', icon: 'sparkles' },
+            { id: 's2', name: 'Pedicure Spa', price: 65000, desc: 'Perawatan & pijat kaki', icon: 'heart' },
+            { id: 's3', name: 'Gel Polish Plain', price: 75000, desc: 'Cat gel polos tahan lama', icon: 'palette' },
+            { id: 's4', name: 'Nail Art Simple', price: 100000, desc: 'Motif simpel 10 jari', icon: 'brush' },
+            { id: 's5', name: 'Nail Art Premium', price: 150000, desc: '3D/Rhinestone/Glitter custom', icon: 'crown' },
+            { id: 's6', name: 'Nail Extension (Gel)', price: 200000, desc: 'Sambung kuku gel cantik', icon: 'scissors' },
+            { id: 's7', name: 'Remove Gel Polish', price: 30000, desc: 'Pembersihan kuteks gel lama', icon: 'eraser' },
+            { id: 's8', name: 'Nail Repair / Jari', price: 25000, desc: 'Perbaikan kuku patah', icon: 'shield-check' }
+        ];
+
+        // --- 2. GLOBAL STATE & LOCALSTORAGE INSIALISASI ---
+        let currentCart = JSON.parse(localStorage.getItem('nailart_cart')) || [];
+        let ordersHistory = JSON.parse(localStorage.getItem('nailart_history')) || [];
+        let activeEditOrderId = null;
+
+        // --- 3. ON PAGE LOAD ---
+        window.onload = function() {
+            lucide.createIcons();
+            renderServiceCatalog();
+            renderCart();
+            updateDashboardStats();
+            renderHistoryTable();
+            
+            // Set default booking time to current time formatted
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('bookingTime').value = now.toISOString().slice(0,16);
+        };
+
+        // --- 4. RENDER KATALOG LAYANAN ---
+        function renderServiceCatalog(filter = '') {
+            const grid = document.getElementById('serviceGrid');
+            grid.innerHTML = '';
+
+            const filtered = SERVICES_CATALOG.filter(s => s.name.toLowerCase().includes(filter.toLowerCase()));
+
+            filtered.forEach(service => {
+                const card = document.createElement('div');
+                card.className = "p-3 rounded-2xl border border-pinksoft-100 hover:border-pinksoft-300 bg-gradient-to-b from-white to-pinksoft-50/40 hover:shadow-md transition-all duration-200 flex flex-col justify-between cursor-pointer group";
+                card.onclick = () => addToCart(service);
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-start mb-1">
+                            <h4 class="font-bold text-xs text-slate-800 group-hover:text-pinksoft-600 transition-colors">${service.name}</h4>
+                            <span class="text-[10px] font-bold text-pinksoft-600 bg-pinksoft-100 px-2 py-0.5 rounded-full">Rp${service.price.toLocaleString('id-ID')}</span>
+                        </div>
+                        <p class="text-[10px] text-slate-400 line-clamp-2 mb-2">${service.desc}</p>
+                    </div>
+                    <button class="w-full py-1.5 bg-pinksoft-100 group-hover:bg-pinksoft-500 group-hover:text-white text-pinksoft-700 rounded-xl font-semibold text-[11px] transition-all flex items-center justify-center gap-1">
+                        <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Tambah
+                    </button>
+                `;
+                grid.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        function filterServices() {
+            const keyword = document.getElementById('searchService').value;
+            renderServiceCatalog(keyword);
+        }
+
+        // --- 5. LOGIK KERANJANG BELANJA (CART) ---
+        function addToCart(service) {
+            const existing = currentCart.find(item => item.id === service.id);
+            if (existing) {
+                existing.qty += 1;
+                existing.subtotal = existing.qty * existing.price;
+            } else {
+                currentCart.push({
+                    id: service.id,
+                    name: service.name,
+                    price: service.price,
+                    qty: 1,
+                    subtotal: service.price
+                });
+            }
+            saveCartToStorage();
+            renderCart();
+        }
+
+        function updateCartQty(id, delta) {
+            const item = currentCart.find(i => i.id === id);
+            if (!item) return;
+
+            item.qty += delta;
+            if (item.qty <= 0) {
+                currentCart = currentCart.filter(i => i.id !== id);
+            } else {
+                item.subtotal = item.qty * item.price;
+            }
+            saveCartToStorage();
+            renderCart();
+        }
+
+        function removeFromCart(id) {
+            currentCart = currentCart.filter(i => i.id !== id);
+            saveCartToStorage();
+            renderCart();
+        }
+
+        function clearCart() {
+            currentCart = [];
+            document.getElementById('custName').value = '';
+            document.getElementById('custPhone').value = '';
+            document.getElementById('cashAmount').value = '';
+            saveCartToStorage();
+            renderCart();
+        }
+
+        function saveCartToStorage() {
+            localStorage.setItem('nailart_cart', JSON.stringify(currentCart));
+        }
+
+        function renderCart() {
+            const cartList = document.getElementById('cartList');
+            cartList.innerHTML = '';
+
+            let total = 0;
+
+            if (currentCart.length === 0) {
+                cartList.innerHTML = `
+                    <div class="text-center py-8 text-pinksoft-300">
+                        <i data-lucide="shopping-bag" class="w-10 h-10 mx-auto mb-2 opacity-50"></i>
+                        <p class="text-xs font-medium">Keranjang belanja masih kosong</p>
+                    </div>
+                `;
+            } else {
+                currentCart.forEach(item => {
+                    total += item.subtotal;
+                    const div = document.createElement('div');
+                    div.className = "flex items-center justify-between p-2.5 rounded-2xl border border-pinksoft-100 bg-pinksoft-50/30 text-xs";
+                    div.innerHTML = `
+                        <div class="flex-1 pr-2">
+                            <h5 class="font-bold text-slate-700">${item.name}</h5>
+                            <p class="text-[10px] text-slate-400">Rp${item.price.toLocaleString('id-ID')} x ${item.qty}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="flex items-center border border-pinksoft-200 rounded-lg bg-white">
+                                <button onclick="updateCartQty('${item.id}', -1)" class="px-2 py-0.5 text-pinksoft-600 font-bold hover:bg-pinksoft-100 rounded-l-lg">-</button>
+                                <span class="px-2 text-xs font-bold text-slate-700">${item.qty}</span>
+                                <button onclick="updateCartQty('${item.id}', 1)" class="px-2 py-0.5 text-pinksoft-600 font-bold hover:bg-pinksoft-100 rounded-r-lg">+</button>
+                            </div>
+                            <span class="font-bold text-pinksoft-700 min-w-[70px] text-right">Rp${item.subtotal.toLocaleString('id-ID')}</span>
+                            <button onclick="removeFromCart('${item.id}')" class="text-rose-400 hover:text-rose-600 p-1">
+                                <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    `;
+                    cartList.appendChild(div);
+                });
+            }
+
+            document.getElementById('subtotalTxt').innerText = `Rp${total.toLocaleString('id-ID')}`;
+            document.getElementById('totalTxt').innerText = `Rp${total.toLocaleString('id-ID')}`;
+            calculateChange();
+            lucide.createIcons();
+        }
+
+        function calculateChange() {
+            const total = currentCart.reduce((sum, item) => sum + item.subtotal, 0);
+            const cash = parseFloat(document.getElementById('cashAmount').value) || 0;
+            const change = cash - total;
+
+            const changeTxt = document.getElementById('changeTxt');
+            if (cash >= total && total > 0) {
+                changeTxt.innerText = `Rp${change.toLocaleString('id-ID')}`;
+                changeTxt.className = "font-bold text-emerald-600 text-base";
+            } else if (cash < total && cash > 0) {
+                changeTxt.innerText = `Kurang Rp${Math.abs(change).toLocaleString('id-ID')}`;
+                changeTxt.className = "font-bold text-rose-500 text-sm";
+            } else {
+                changeTxt.innerText = "Rp0";
+                changeTxt.className = "font-bold text-slate-400 text-base";
+            }
+        }
+
+        // --- 6. SIMPAN BOOKING & PROSES PEMBAYARAN ---
+        function saveBookingOnly() {
+            if (currentCart.length === 0) {
+                alert('Pilih minimal satu layanan terlebih dahulu!');
+                return;
+            }
+
+            const custName = document.getElementById('custName').value.trim() || 'Tamu Umumn';
+            const custPhone = document.getElementById('custPhone').value.trim() || '-';
+            const bookingTime = document.getElementById('bookingTime').value;
+            const total = currentCart.reduce((sum, item) => sum + item.subtotal, 0);
+
+            const newOrder = {
+                id: 'ORD-' + Date.now().toString().slice(-6),
+                date: new Date().toLocaleString('id-ID'),
+                bookingTime: bookingTime || new Date().toLocaleString('id-ID'),
+                customer: custName,
+                phone: custPhone,
+                items: [...currentCart],
+                total: total,
+                paid: 0,
+                change: 0,
+                status: 'BOOKED'
+            };
+
+            ordersHistory.unshift(newOrder);
+            localStorage.setItem('nailart_history', JSON.stringify(ordersHistory));
+
+            alert(`Jadwal Booking atas nama "${custName}" BERHASIL tersimpan!`);
+            clearCart();
+            updateDashboardStats();
+            renderHistoryTable();
+        }
+
+        function processPayment() {
+            if (currentCart.length === 0) {
+                alert('Keranjang masih kosong!');
+                return;
+            }
+
+            const total = currentCart.reduce((sum, item) => sum + item.subtotal, 0);
+            const cash = parseFloat(document.getElementById('cashAmount').value) || 0;
+
+            if (cash < total) {
+                alert('Uang pembayaran tunai masih kurang!');
+                return;
+            }
+
+            const custName = document.getElementById('custName').value.trim() || 'Pelanggan Umum';
+            const custPhone = document.getElementById('custPhone').value.trim() || '-';
+            const change = cash - total;
+
+            const newOrder = {
+                id: 'ORD-' + Date.now().toString().slice(-6),
+                date: new Date().toLocaleString('id-ID'),
+                customer: custName,
+                phone: custPhone,
+                items: [...currentCart],
+                total: total,
+                paid: cash,
+                change: change,
+                status: 'LUNAS'
+            };
+
+            ordersHistory.unshift(newOrder);
+            localStorage.setItem('nailart_history', JSON.stringify(ordersHistory));
+
+            // TAMPILKAN STRUK PEMBAYARAN
+            showReceiptModal(newOrder);
+
+            // RESET STATE
+            clearCart();
+            updateDashboardStats();
+            renderHistoryTable();
+        }
+
+        // --- 7. MODAL STRUK (RECEIPT) ---
+        function showReceiptModal(order) {
+            document.getElementById('receiptDate').innerText = order.date;
+            document.getElementById('receiptCust').innerText = order.customer;
+            document.getElementById('receiptTotal').innerText = `Rp${order.total.toLocaleString('id-ID')}`;
+            document.getElementById('receiptCash').innerText = `Rp${order.paid.toLocaleString('id-ID')}`;
+            document.getElementById('receiptChange').innerText = `Rp${order.change.toLocaleString('id-ID')}`;
+
+            const itemsContainer = document.getElementById('receiptItems');
+            itemsContainer.innerHTML = '';
+            order.items.forEach(item => {
+                itemsContainer.innerHTML += `
+                    <div class="flex justify-between">
+                        <span>${item.name} (x${item.qty})</span>
+                        <span>Rp${item.subtotal.toLocaleString('id-ID')}</span>
+                    </div>
+                `;
+            });
+
+            document.getElementById('printReceiptModal').classList.remove('hidden');
+        }
+
+        function closeReceiptModal() {
+            document.getElementById('printReceiptModal').classList.add('hidden');
+        }
+
+        // --- 8. DASHBOARD ANALYTICS ---
+        function updateDashboardStats() {
+            const paidOrders = ordersHistory.filter(o => o.status === 'LUNAS');
+            const totalRevenue = paidOrders.reduce((sum, o) => sum + o.total, 0);
+            const activeBookings = ordersHistory.filter(o => o.status === 'BOOKED').length;
+
+            document.getElementById('statRevenue').innerText = `Rp${totalRevenue.toLocaleString('id-ID')}`;
+            document.getElementById('statCount').innerText = `${paidOrders.length} Transaksi`;
+            document.getElementById('statActiveBooking').innerText = `${activeBookings} Order`;
+
+            // HITUNG TOP LAYANAN
+            const serviceCounts = {};
+            paidOrders.forEach(order => {
+                order.items.forEach(item => {
+                    serviceCounts[item.name] = (serviceCounts[item.name] || 0) + item.qty;
+                });
+            });
+
+            let topServiceName = '-';
+            let maxCount = 0;
+            for (const [name, count] of Object.entries(serviceCounts)) {
+                if (count > maxCount) {
+                    maxCount = count;
+                    topServiceName = name;
+                }
+            }
+            document.getElementById('statTopService').innerText = topServiceName;
+
+            // RENDER RANKING LIST
+            const topListContainer = document.getElementById('topServicesList');
+            topListContainer.innerHTML = '';
+
+            const sortedServices = Object.entries(serviceCounts).sort((a, b) => b[1] - a[1]);
+
+            if (sortedServices.length === 0) {
+                topListContainer.innerHTML = `<p class="text-xs text-slate-400 italic">Belum ada transaksi lunas</p>`;
+            } else {
+                sortedServices.slice(0, 5).forEach(([name, qty], idx) => {
+                    topListContainer.innerHTML += `
+                        <div class="flex items-center justify-between text-xs p-2 rounded-xl bg-pinksoft-50/50">
+                            <div class="flex items-center gap-2">
+                                <span class="w-5 h-5 rounded-full bg-pinksoft-200 text-pinksoft-800 font-bold flex items-center justify-center text-[10px]">${idx + 1}</span>
+                                <span class="font-semibold text-slate-700">${name}</span>
+                            </div>
+                            <span class="font-bold text-pinksoft-600">${qty} Dipesan</span>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        // --- 9. RIWAYAT & MANAGEMENT ORDERS (CRUD) ---
+        function renderHistoryTable() {
+            const filter = document.getElementById('filterStatus').value;
+            const tbody = document.getElementById('historyTableBody');
+            tbody.innerHTML = '';
+
+            const filtered = ordersHistory.filter(o => filter === 'ALL' || o.status === filter);
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400">Belum ada catatan riwayat transaksi</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(order => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-pinksoft-50/50 transition-colors";
+
+                const itemsSummary = order.items.map(i => `${i.name} (x${i.qty})`).join(', ');
+
+                tr.innerHTML = `
+                    <td class="p-3 font-semibold text-pinksoft-800">${order.id}<br><span class="text-[10px] font-normal text-slate-400">${order.date}</span></td>
+                    <td class="p-3 font-medium text-slate-700">${order.customer}<br><span class="text-[10px] text-slate-400">${order.phone}</span></td>
+                    <td class="p-3 text-slate-600 max-w-[180px] truncate" title="${itemsSummary}">${itemsSummary}</td>
+                    <td class="p-3 font-bold text-pinksoft-700">Rp${order.total.toLocaleString('id-ID')}</td>
+                    <td class="p-3">
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${order.status === 'LUNAS' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
+                            ${order.status}
+                        </span>
+                    </td>
+                    <td class="p-3 text-right">
+                        <div class="flex items-center justify-end gap-1">
+                            <button onclick="openEditModal('${order.id}')" class="p-1.5 bg-pinksoft-100 hover:bg-pinksoft-200 text-pinksoft-700 rounded-lg text-xs" title="Edit">
+                                <i data-lucide="edit" class="w-3.5 h-3.5"></i>
+                            </button>
+                            <button onclick="deleteOrder('${order.id}')" class="p-1.5 bg-rose-100 hover:bg-rose-200 text-rose-600 rounded-lg text-xs" title="Hapus">
+                                <i data-lucide="trash" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            lucide.createIcons();
+        }
+
+        function deleteOrder(id) {
+            if (confirm(`Apakah Anda yakin ingin menghapus transaksi ID ${id}?`)) {
+                ordersHistory = ordersHistory.filter(o => o.id !== id);
+                localStorage.setItem('nailart_history', JSON.stringify(ordersHistory));
+                updateDashboardStats();
+                renderHistoryTable();
+            }
+        }
+
+        // --- 10. EDIT MODAL LOGIC ---
+        function openEditModal(id) {
+            activeEditOrderId = id;
+            const order = ordersHistory.find(o => o.id === id);
+            if (!order) return;
+
+            document.getElementById('editCustName').value = order.customer;
+            document.getElementById('editStatus').value = order.status;
+            document.getElementById('editNotes').value = order.notes || '';
+
+            document.getElementById('editModal').classList.remove('hidden');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.add('hidden');
+            activeEditOrderId = null;
+        }
+
+        function saveEditOrder() {
+            const order = ordersHistory.find(o => o.id === activeEditOrderId);
+            if (order) {
+                order.customer = document.getElementById('editCustName').value;
+                order.status = document.getElementById('editStatus').value;
+                order.notes = document.getElementById('editNotes').value;
+
+                localStorage.setItem('nailart_history', JSON.stringify(ordersHistory));
+                updateDashboardStats();
+                renderHistoryTable();
+                closeEditModal();
+            }
+        }
+
+        // --- 11. TAB SWITCHING & RESET DATA SYSTEM ---
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = "tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 text-pinksoft-600 hover:text-pinksoft-800";
+            });
+
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            document.getElementById(`nav-${tabName}`).className = "tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 bg-white text-pinksoft-700 shadow-sm";
+        }
+
+        function resetAllSystemData() {
+            if (confirm('PERINGATAN: Seluruh riwayat transaksi, booking, dan keranjang akan DIHAPUS PERMANEN. Lanjutkan?')) {
+                localStorage.removeItem('nailart_cart');
+                localStorage.removeItem('nailart_history');
+                currentCart = [];
+                ordersHistory = [];
+                renderCart();
+                updateDashboardStats();
+                renderHistoryTable();
+                alert('Seluruh data system berhasil dibersihkan!');
+            }
+        }
+
+        function exportDataJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(ordersHistory, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `nailart_backup_${Date.now()}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+    </script>
+</body>
+</html>
